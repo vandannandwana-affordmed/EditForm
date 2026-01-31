@@ -10,7 +10,6 @@ export default function RegistrationForm() {
   const { handleRegister } = useEditHook();
 
   const { currentUserHook } = useGetUserHook();
-  console.log("HOOK DATA:", currentUserHook.data);
 
   const initialValues: User = {
     fullName: currentUserHook?.data?.fullName ?? "",
@@ -29,7 +28,6 @@ export default function RegistrationForm() {
         initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={(values, { setSubmitting }) => {
-          console.log("VALUES:", values);
           handleRegister(values, setSubmitting);
         }}
       >
