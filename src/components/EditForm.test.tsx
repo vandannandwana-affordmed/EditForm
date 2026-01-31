@@ -1,8 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { describe, it, expect, vi, beforeEach } from "vitest";
 import RegistrationForm from "./EditForm";
-import { toast } from "react-toastify";
 
 const mutateAsyncMock = vi.fn();
 
@@ -66,10 +62,7 @@ describe("RegistrationForm", () => {
       await userEvent.click(btn);
     }
 
-    await userEvent.type(
-      screen.getByLabelText(/full name/i),
-      "Vandan Nandwana",
-    );
+    await userEvent.type(screen.getByLabelText(/full name/i), "John Doe");
     await userEvent.type(screen.getByLabelText(/email/i), "test@example.com");
     await userEvent.type(screen.getByLabelText(/^password$/i), "Password1!");
 
@@ -81,6 +74,8 @@ describe("RegistrationForm", () => {
   });
 
   it("shows error toast on API failure", async () => {
+    const toastErrorSpy = vi.spyOn(toast, "error").mockImplementation(vi.fn());
+
     handleRegisterMock.mockImplementationOnce(() => {
       toast.error("Something went wrong!");
     });
@@ -99,8 +94,10 @@ describe("RegistrationForm", () => {
     await userEvent.click(screen.getByRole("button", { name: /submit/i }));
 
     await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith("Something went wrong!");
+      expect(toastErrorSpy).toHaveBeenCalledWith("Something went wrong!");
     });
+
+    toastErrorSpy.mockRestore();
   });
 
   it("disables submit button while submitting", async () => {

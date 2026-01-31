@@ -1,34 +1,31 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { Form, Formik } from "formik";
 import { object, string } from "yup";
 import MyTextField from "./TextField";
-import { vi } from "vitest";
 
-const renderWithFormik = ({
+const FormikWrapper = ({
+  children,
   initialValues,
   validationSchema,
 }: {
+  children: React.ReactNode;
   initialValues: Record<string, any>;
   validationSchema?: any;
-}) => {
-  return render(
-    <Formik
-      initialValues={initialValues}
-      validationSchema={validationSchema}
-      onSubmit={vi.fn()}
-    >
-      <Form>
-        <MyTextField name="email" label="Email" type="email" />
-      </Form>
-    </Formik>,
-  );
-};
+}) => (
+  <Formik
+    initialValues={initialValues}
+    validationSchema={validationSchema}
+    onSubmit={vi.fn()}
+  >
+    <Form>{children}</Form>
+  </Formik>
+);
 
 describe("MyTextField", () => {
   test("renders input field", () => {
-    renderWithFormik({
-      initialValues: { email: "" },
+    render(<MyTextField name="email" label="Email" type="email" />, {
+      wrapper: (props) => (
+        <FormikWrapper {...props} initialValues={{ email: "" }} />
+      ),
     });
 
     const input = screen.getByLabelText(/email/i);
@@ -36,8 +33,10 @@ describe("MyTextField", () => {
   });
 
   test("updates value when typing", () => {
-    renderWithFormik({
-      initialValues: { email: "" },
+    render(<MyTextField name="email" label="Email" type="email" />, {
+      wrapper: (props) => (
+        <FormikWrapper {...props} initialValues={{ email: "" }} />
+      ),
     });
 
     const input = screen.getByLabelText(/email/i) as HTMLInputElement;
@@ -48,11 +47,18 @@ describe("MyTextField", () => {
   });
 
   it("shows error when invalid email", async () => {
-    renderWithFormik({
-      initialValues: { email: "" },
-      validationSchema: object({
-        email: string().email("Invalid email").required("Email is required"),
-      }),
+    render(<MyTextField name="email" label="Email" type="email" />, {
+      wrapper: (props) => (
+        <FormikWrapper
+          {...props}
+          initialValues={{ email: "" }}
+          validationSchema={object({
+            email: string()
+              .email("Invalid email")
+              .required("Email is required"),
+          })}
+        />
+      ),
     });
 
     const editButton = screen.getByRole("button");
